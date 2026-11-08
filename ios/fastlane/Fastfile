@@ -1,0 +1,81 @@
+default_platform(:ios)
+
+APP_ID = "com.firstrent.app"
+TEAM_ID = "59GW7X6RA6"
+VERSION = "1.0.0"
+BUILD = "1"
+
+def connect_api_key
+  app_store_connect_api_key(
+    key_id: ENV.fetch("APP_STORE_CONNECT_KEY_ID"),
+    issuer_id: ENV.fetch("APP_STORE_CONNECT_ISSUER_ID"),
+    key_filepath: ENV.fetch("APP_STORE_CONNECT_API_KEY_PATH"),
+    in_house: false
+  )
+end
+
+platform :ios do
+  desc "Create the FIRST RENT App Store Connect app"
+  lane :bootstrap do
+    connect_api_key
+    sh("node #{File.expand_path('bootstrap-app.mjs', __dir__)}")
+    UI.success("App #{APP_ID} ready")
+  end
+
+  desc "Build and upload FIRST RENT to TestFlight"
+  lane :release do
+    setup_ci
+    api_key = connect_api_key
+
+    keychain_name = ENV.fetch("MATCH_KEYCHAIN_NAME", "fastlane_tmp_keychain")
+    keychain_password = ENV.fetch("MATCH_KEYCHAIN_PASSWORD", "")
+    keychain_path = File.expand_path("~/Library/Keychains/#{keychain_name}-db")
+
+    import_certificate(
+      certificate_path: ENV.fetch("P12_PATH"),
+      certificate_password: ENV.fetch("P12_PASSWORD"),
+      keychain_path: keychain_path,
+      keychain_password: keychain_password
+    )
+
+    get_provisioning_profile(
+      api_key: api_key,
+      app_identifier: APP_ID
+    )
+    profile_name = lane_context[SharedValues::SIGH_NAME]
+
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "FIRSTRENT.xcodeproj",
+      team_id: TEAM_ID,
+      code_sign_identity: "Apple Distribution",
+      profile_name: profile_name,
+      bundle_identifier: APP_ID,
+      targets: ["FIRSTRENT"]
+    )
+
+    build_app(
+      project: "FIRSTRENT.xcodeproj",
+      scheme: "FIRSTRENT",
+      configuration: "Release",
+      export_method: "app-store",
+      destination: "generic/platform=iOS",
+      skip_profile_detection: true,
+      xcargs: "CURRENT_PROJECT_VERSION=#{BUILD} MARKETING_VERSION=#{VERSION}",
+      export_options: {
+        method: "app-store",
+        signingStyle: "manual",
+        teamID: TEAM_ID,
+        provisioningProfiles: {
+          APP_ID => profile_name
+        }
+      }
+    )
+
+    upload_to_testflight(
+      api_key: api_key,
+      skip_waiting_for_build_processing: false,
+      changelog: "FIRST RENT #{VERSION} (#{BUILD}) — le site client sur iPhone."
+    )
+  end
+end

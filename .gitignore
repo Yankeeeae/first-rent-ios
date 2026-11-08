@@ -1,0 +1,13 @@
+*.xcodeproj
+*.xcworkspace
+private_keys/
+*.p12
+*.cer
+*.pem
+*.mobileprovision
+*.ipa
+DerivedData/
+build/
+fastlane/report.xml
+fastlane/README.md
+node_modules/
