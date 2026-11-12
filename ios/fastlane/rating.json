@@ -11,6 +11,17 @@
   "violenceCartoonOrFantasy": "NONE",
   "violenceRealistic": "NONE",
   "violenceRealisticProlongedGraphicOrSadistic": "NONE",
+  "gunsOrOtherWeapons": "NONE",
+  "advertising": false,
+  "ageAssurance": false,
   "gambling": false,
-  "unrestrictedWebAccess": false
+  "healthOrWellnessTopics": false,
+  "lootBox": false,
+  "messagingAndChat": false,
+  "parentalControls": false,
+  "socialMedia": false,
+  "socialMediaAgeRestricted": false,
+  "unrestrictedWebAccess": false,
+  "userGeneratedContent": false,
+  "ageRatingOverrideV2": "NONE"
 }
