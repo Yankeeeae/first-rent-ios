@@ -11,3 +11,5 @@ build/
 fastlane/report.xml
 fastlane/README.md
 node_modules/
+ios/fastlane/screenshots/package.json
+ios/fastlane/screenshots/package-lock.json

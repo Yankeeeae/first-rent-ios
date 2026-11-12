@@ -77,5 +77,40 @@ platform :ios do
       skip_waiting_for_build_processing: false,
       changelog: "FIRST RENT #{VERSION} (#{BUILD}) — le site client sur iPhone."
     )
+
+    if ENV.fetch("SUBMIT_FOR_REVIEW", "false") == "true"
+      submit_review
+    end
+  end
+
+  desc "Send the App Store listing and submit the build"
+  lane :submit_review do
+    api_key = connect_api_key
+    upload_to_app_store(
+      api_key: api_key,
+      app_identifier: APP_ID,
+      app_version: VERSION,
+      app_rating_config_path: File.expand_path("rating.json", __dir__),
+      skip_binary_upload: true,
+      skip_metadata: false,
+      skip_screenshots: false,
+      force: true,
+      submit_for_review: true,
+      automatic_release: false,
+      precheck_include_in_app_purchases: false,
+      run_precheck_before_submit: false,
+      submission_information: {
+        add_id_info_uses_idfa: false,
+        add_id_info_serves_ads: false,
+        add_id_info_tracks_action: false,
+        add_id_info_tracks_install: false,
+        add_id_info_limits_tracking: false,
+        export_compliance_uses_encryption: false,
+        export_compliance_is_exempt: false,
+        export_compliance_encryption_updated: false,
+        content_rights_has_rights: true,
+        content_rights_contains_third_party_content: false
+      }
+    )
   end
 end

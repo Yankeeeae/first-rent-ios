@@ -1,0 +1,13 @@
+FIRST RENT 1.0.0. No account. No sign-in.
+
+The app opens the agency website. Review on iPhone:
+1. Open FIRST RENT. A short black screen with the gold logo appears, then the site.
+2. Scroll the vehicles under MONTEZ A BORD.
+3. Tap a vehicle, choose a start date and a return date, then continue.
+4. The payment step is a mock. No amount is charged. Apple Pay, Google Pay and the card form do not debit a card.
+5. Identity and licence files, and the live photo, stay on the device. They are not uploaded.
+6. The rental contract can be read and signed on screen.
+7. Call the agency with 06 76 35 19 33 if needed.
+
+Privacy: the app does not track and does not use the advertising identifier. Privacy policy: https://first-rent.vercel.app/confidentialite.html
+Agency: FIRST RENT SAS, 13 rue de la Peupleraie, 91160 Longjumeau.

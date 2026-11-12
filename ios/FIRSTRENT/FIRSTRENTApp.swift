@@ -1,14 +1,18 @@
 import SwiftUI
 import WebKit
 
-private let startURL = URL(string: "https://firstrent.fr/?app=1")!
+private let startURL = URL(string: "https://first-rent.vercel.app/?app=1")!
+
+private func isFirstRent(_ url: URL) -> Bool {
+  let host = url.host?.lowercased() ?? ""
+  return host == "firstrent.fr" || host == "www.firstrent.fr" || host == "first-rent.vercel.app"
+}
 
 @main
 struct FIRSTRENTApp: App {
   var body: some Scene {
     WindowGroup {
       WebScreen(subtitle: nil)
-        .ignoresSafeArea()
         .preferredColorScheme(.dark)
     }
   }
@@ -87,7 +91,7 @@ struct SiteWebView: UIViewRepresentable {
     view.isOpaque = false
     view.backgroundColor = .black
     view.scrollView.backgroundColor = .black
-    view.scrollView.contentInsetAdjustmentBehavior = .never
+    view.scrollView.contentInsetAdjustmentBehavior = .automatic
     context.coordinator.webView = view
     view.load(URLRequest(url: url))
     return view
@@ -120,10 +124,12 @@ struct SiteWebView: UIViewRepresentable {
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+      if (error as NSError).code == NSURLErrorCancelled { return }
       failed = true
     }
 
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+      if (error as NSError).code == NSURLErrorCancelled { return }
       failed = true
     }
 
@@ -138,8 +144,17 @@ struct SiteWebView: UIViewRepresentable {
         decisionHandler(.cancel)
         return
       }
-      if navigationAction.targetFrame == nil {
-        webView.load(URLRequest(url: url))
+      if scheme == "http" || scheme == "https" {
+        if isFirstRent(url) {
+          if navigationAction.targetFrame == nil {
+            webView.load(URLRequest(url: url))
+            decisionHandler(.cancel)
+            return
+          }
+          decisionHandler(.allow)
+          return
+        }
+        UIApplication.shared.open(url)
         decisionHandler(.cancel)
         return
       }
@@ -147,14 +162,18 @@ struct SiteWebView: UIViewRepresentable {
     }
 
     func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
-      if let url = navigationAction.request.url {
+      if let url = navigationAction.request.url, isFirstRent(url) {
         webView.load(URLRequest(url: url))
+      } else if let url = navigationAction.request.url {
+        UIApplication.shared.open(url)
       }
       return nil
     }
 
     func webView(_ webView: WKWebView, requestMediaCapturePermissionFor origin: WKSecurityOrigin, initiatedByFrame frame: WKFrameInfo, type: WKMediaCaptureType, decisionHandler: @escaping (WKPermissionDecision) -> Void) {
-      decisionHandler(.grant)
+      let host = origin.host.lowercased()
+      let allowed = host == "firstrent.fr" || host == "www.firstrent.fr" || host == "first-rent.vercel.app"
+      decisionHandler(allowed ? .grant : .deny)
     }
   }
 }
