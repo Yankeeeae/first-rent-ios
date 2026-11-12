@@ -1,7 +1,7 @@
 import SwiftUI
 import WebKit
 
-private let startURL = URL(string: "https://first-rent.vercel.app/admin.html?app=1")!
+private let startURL = URL(string: "https://firstrent.fr/admin.html?app=1")!
 
 @main
 struct FIRSTRENTPROApp: App {
